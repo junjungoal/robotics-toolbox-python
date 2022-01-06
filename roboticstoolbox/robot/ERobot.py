@@ -973,7 +973,10 @@ graph [rankdir=LR];
 
 
 class ERobot(BaseERobot):
-    def __init__(self, arg, **kwargs):
+    def __init__(self, arg, urdf_string=None, urdf_filepath=None, **kwargs):
+
+        self._urdf_string = urdf_string
+        self._urdf_filepath = urdf_filepath
 
         if isinstance(arg, DHRobot):
             # we're passed a DHRobot object
@@ -1000,7 +1003,19 @@ class ERobot(BaseERobot):
             links = arg
 
         elif isinstance(arg, ERobot):
-            # we're passed an ERobot, clone it
+            # We're passed an ERobot, clone it
+            # We need to preserve the parent link as we copy
+            # links = []
+            #
+            # def dfs(node, node_copy):
+            #     for child in node.children:
+            #         child_copy = child.copy(node_copy)
+            #         links.append(child_copy)
+            #         dfs(child, child_copy)
+            #
+            # link0 = arg.links[0]
+            # links.append(arg.links[0].copy())
+            # dfs(link0, links[0])
             links = [link.copy() for link in arg]
 
         else:
@@ -1045,6 +1060,13 @@ class ERobot(BaseERobot):
         return cls(links, name=name, gripper_links=gripper)
 
     # --------------------------------------------------------------------- #
+    @property
+    def urdf_string(self):
+        return self._urdf_string
+
+    @property
+    def urdf_filepath(self):
+        return self._urdf_filepath
 
     def _reset_cache(self):
         self._path_cache = {}
@@ -2289,3 +2311,4 @@ if __name__ == "__main__":  # pragma nocover
     e4 = ELink(ETS.rz(), jindex=5, parent=e3)
 
     ERobot([e1, e2, e3, e4])
+
